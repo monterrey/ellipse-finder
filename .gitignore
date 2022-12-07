@@ -1,2 +1,13 @@
-#ignore misc folder
 misc/
+archive/
+data/
+.spyproject/
+utilityScripts/
+encoding.ini
+*.txt
+*.eps
+scratchpad.*
+src/Hodograph_DuttaMethod_backvsnoback.py
+src/Hodograph_DuttaMethod.py
+src/__pycache__
+.vscode/
