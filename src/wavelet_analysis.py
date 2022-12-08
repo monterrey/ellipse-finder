@@ -1,4 +1,4 @@
-from flight_profile import FlightProfiler
+from src.flight_profile import FlightProfiler
 from metpy.units import units
 class WaveletAnalyser(FlightProfiler):
     def __init__(self, applyButterworth:bool, p_0: units.hPa , heightSamplingFreq : units.m ) -> None:

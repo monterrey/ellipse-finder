@@ -17,7 +17,7 @@ from scipy import optimize
 #metpy related dependencies - consider removing entirely
 import metpy.calc as mpcalc
 from metpy.units import units
-import constants
+from src import constants
 class FlightProfiler():
     
     def __init__(self,applyButterworth:bool, p_0: units.hPa , heightSamplingFreq : units.m ) -> None:

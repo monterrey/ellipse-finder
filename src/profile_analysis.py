@@ -1,7 +1,7 @@
-import constants
-import params
-import wavelet_analysis
-import hodograph_analysis
+from src import constants
+from src import params
+from src import wavelet_analysis
+from src import hodograph_analysis
 class ProfileAlanyser:
     def __init__(self) -> None:
         pass
