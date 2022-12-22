@@ -12,12 +12,9 @@ applyButterworth = True
 
 dir = Path()
 cwd = dir.resolve().parent
-
-
-flightData = cwd.joinpath('test-data/Tolten/')             #flight data directory
-fileToBeInspected = 'T26_1630_12142020_MT2.txt'                                                                       #specific flight profile to be searched through manually
+flightData = dir.joinpath('test-data/Tolten/')             #flight data directory
+fileToBeInspected = flightData.joinpath('T26_1630_12142020_MT2.txt')                                                                       #specific flight profile to be searched through manually
 microHodoDir = cwd.joinpath('test-data/Tolten/test/') #"Tolten_butterNoSubtraction/T29"
-#microHodoDir = r"C:\Users\Malachi\OneDrive - University of Idaho\workingChileDirectory\Tolten\T28"              #location where selections from GUI ard. This is also the location where do analysis looks for micro hodos to analysis
 waveParamDir = cwd.joinpath('test-data/Tolten/waveParams')   #location where wave parameter files are to be saved
 microHodoFolderDir = cwd.joinpath('test-data/Tolten/T28')    #location of micrhodo folders for each flight
 #configuration file

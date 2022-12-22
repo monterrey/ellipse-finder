@@ -3,4 +3,4 @@ import src.constants
 
 class HodoAnalyser(FlightProfiler):
     def __init__(self):
-        a = 5
+        pass
