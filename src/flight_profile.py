@@ -24,28 +24,28 @@ class FlightProfiler():
         self.__applyButterworth = applyButterworth
         self.__p_0 = p_0
         self.__heightSamplingFreq = heightSamplingFreq
-        # self.__dataframe 
+        # df 
         # self.__U_total, self.__V_total, self.__T_total
-        self.preprocessDataResample(filepath)
+        self.__flight_data , self.dataframe = self.preprocessDataResample(filepath)
         #self.flightNumber = self.getFlightConfiguration(file, configFile, configPath)
     
     def __apply_butterworth(self,spatialResolution):
             #linear interpolation only needs to occur if butterworth is applied
         #linearly interpolate data - such that it is spaced iniformly in space, heightwise - stolen from Keaton
         #create index of heights with 1 m spacial resolution - from minAlt to maxAlt
-        heightIndex = pd.DataFrame({'Alt': np.arange(min(self.__dataframe['Alt']), max(self.__dataframe['Alt']))})
+        heightIndex = pd.DataFrame({'Alt': np.arange(min(df['Alt']), max(df['Alt']))})
         #right merge data with index to keep all heights
-        self.__dataframe= pd.merge(self.__dataframe, heightIndex, how='right', on='Alt')
+        df= pd.merge(df, heightIndex, how='right', on='Alt')
         #sort data by height
-        self.__dataframe = self.__dataframe.sort_values(by='Alt')
+        df = df.sort_values(by='Alt')
         #linear interpolate the nans
         missingDataLimit = 999  #more than 1km of data should be left as nans, will not be onsidered in analysis
-        self.__dataframe = self.__dataframe.interpolate(method='linear', limit=missingDataLimit)
+        df = df.interpolate(method='linear', limit=missingDataLimit)
         #resample at height interval
-        keepIndex = np.arange(0, len(self.__dataframe['Alt']), spatialResolution)
-        self.__dataframe = self.__dataframe.iloc[keepIndex,:]
-        self.__dataframe.reset_index(drop=True, inplace=True)
-        self.__dataframe = self.__dataframe.dropna()    #added 8/4/2021 - not sure why butterworth is creating nans
+        keepIndex = np.arange(0, len(df['Alt']), spatialResolution)
+        df = df.iloc[keepIndex,:]
+        df.reset_index(drop=True, inplace=True)
+        df = df.dropna()    #added 8/4/2021 - not sure why butterworth is creating nans
 
     # TODO: change to allow for different naming conventions 
     def getFlightConfiguration(profile, configFile, configFilePath):
@@ -246,36 +246,35 @@ class FlightProfiler():
             contents = contents[:index]
         contents = "\n".join(contents)  # Reassemble string
         # format flight data in dataframe
-        self.__dataframe = pd.read_csv(StringIO(contents), delim_whitespace=True)
+        df = pd.read_csv(StringIO(contents), delim_whitespace=True)
         #turn strings into numeric data types, non numerics turned to nans
-        self.__dataframe = self.__dataframe.apply(pd.to_numeric, errors='coerce') 
+        df = df.apply(pd.to_numeric, errors='coerce') 
         # replace all numbers greater than 999999 with nans
-        self.__dataframe = self.__dataframe.where(self.__dataframe < 999999, np.nan)    
+        df = df.where(df < 999999, np.nan)    
         #truncate data at greatest alt
-        self.__dataframe = self.__dataframe[0 : np.where(self.__dataframe['Alt']== self.__dataframe['Alt'].max())[0][0]+1]  
+        df = df[0 : np.where(df['Alt']== df['Alt'].max())[0][0]+1]  
         #Truncate data below tropopause
-        self.__dataframe = self.__dataframe[self.__dataframe['P'] <= tropopauseMin] 
+        df = df[df['P'] <= tropopauseMin] 
         #drop rows with nans
-        self.__dataframe = self.__dataframe.dropna(subset=['Time', 'T', 'Ws', 'Wd', 'Long.', 'Lat.', 'Alt'])
+        df = df.dropna(subset=['Time', 'T', 'Ws', 'Wd', 'Long.', 'Lat.', 'Alt'])
         #remove unneeded columns
-        self.__dataframe = self.__dataframe[['Time', 'Alt', 'T', 'P', 'Ws', 'Wd', 'Lat.', 'Long.']]
+        df = df[['Time', 'Alt', 'T', 'P', 'Ws', 'Wd', 'Lat.', 'Long.']]
 
         #individual series for each variable, local
         rawData = {
-            'Time':self.__dataframe['Time'].to_numpy(),
-            'Pres':self.__dataframe['P'].to_numpy() * units.hPa,
-            'Temp' : self.__dataframe['T'].to_numpy()  * units.degC,
-            'Ws' : self.__dataframe['Ws'].to_numpy() * units.m / units.second,
-            'Wd' : self.__dataframe['Wd'].to_numpy() * units.degree,
-            'Long' : self.__dataframe['Long.'].to_numpy(),
-            'Lat' : self.__dataframe['Lat.'].to_numpy(),
-            'Alt' : self.__dataframe['Alt'].to_numpy().astype(int) * units.meter,
+            'Time':df['Time'].to_numpy(),
+            'Pres':df['P'].to_numpy() * units.hPa,
+            'Temp' : df['T'].to_numpy()  * units.degC,
+            'Ws' : df['Ws'].to_numpy() * units.m / units.second,
+            'Wd' : df['Wd'].to_numpy() * units.degree,
+            'Long' : df['Long.'].to_numpy(),
+            'Lat' : df['Lat.'].to_numpy(),
+            'Alt' : df['Alt'].to_numpy().astype(int) * units.meter,
             'bv2' : None,
             'u' : None,
             'v' : None
             }
-
-
         #convert wind from polar to cartesian c.s.
-        u, v = mpcalc.wind_components(rawData['Ws'], rawData['Wd'])   #raw u,v components - no different than using trig fuctions
-        print("ayo")
+        rawData['u'], rawData['v'] = mpcalc.wind_components(rawData['Ws'], rawData['Wd'])   #raw u,v components - no different than using trig fuctions
+        
+        return (rawData,df)

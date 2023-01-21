@@ -11,5 +11,7 @@ class ProfileAlanyser:
     def waveletAnalysis(self):
         self.wave = wavelet_analysis.WaveletAnalyser(params.applyButterworth,constants.P_0, constants.HEIGHT_SAMPLING_FREQ,params.fileToBeInspected)
 
-    def batchAnalysis(self, hodoBatch :bool , waveletBatch :bool ):
+    def batchAnalysis(self, hodoBatch :bool , waveletBatch :bool , batchDir ):
+        bd = batchDir
+        
         pass
